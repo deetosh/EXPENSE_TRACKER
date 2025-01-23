@@ -85,4 +85,28 @@ export class ValidationService implements iValidationService {
         }
         return true;
     }
+    validCategory(name: string, data: any): boolean {
+        if (data == null || data == "" || data == undefined) throw `${name} is not a valid category`
+        const categories=['utility','insurance','bank_fees','rent','taxes','repair','gifts','shopping','interest','travel','food','health','others'];
+        if(!categories.includes(data)){
+            throw `${name} is not a valid category. Please enter a valid category`;
+        }
+        return true;
+    }
+    validPaymentMode(name: string, data: any) : boolean{
+        if(data == null || data == "" || data == undefined) throw `${name} is not a valid payment mode`
+        const modes=['cash','credit/debit cards','UPI','cheque','digital wallets','NET banking','EMI'];
+        if(!modes.includes(data)){
+            throw `${name} is not a valid payment mode. Please enter a valid payment mode`;
+        }
+        return true;
+    }
+    validDate(name: string, data: any): boolean {
+        if(data == null || data == "" || data == undefined) throw `${name} is not a valid date`
+        const date = new Date(data);
+        if(isNaN(date.getTime())){
+            throw `${name} is not a valid date. Please enter a valid date`;
+        }
+        return true;
+    }
 }

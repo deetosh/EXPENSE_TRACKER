@@ -7,4 +7,7 @@ export interface iValidationService {
     validRole:(varna: string, data: any) => boolean;
     requiredData:(name: string, data: any) => boolean;
     validName:(name: string, memberName: any) => boolean;
+    validCategory:(name: string, data: any) => boolean; 
+    validPaymentMode:(name: string, data: any) => boolean;
+    validDate:(name: string, data: any) => boolean;
 }

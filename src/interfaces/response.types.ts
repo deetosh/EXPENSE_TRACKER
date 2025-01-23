@@ -2,7 +2,8 @@ interface serviceResponse {
     statusCode: number,
     isError: boolean,
     message: string,
-    data?: any
+    data?: any,
+    cookie_data?: any
 }
 
 interface repoResponse {

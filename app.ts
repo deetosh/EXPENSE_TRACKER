@@ -6,6 +6,7 @@ if (dotenvResult.error) {
 import express from 'express'
 import RouterConfig from "./src/routes";
 import cors from "cors"
+import cookie from "cookie-parser"
 
 
 const app: express.Application = express();
@@ -14,6 +15,7 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookie());
 
 // Configure the routes
 const routerConfig = new RouterConfig(app);

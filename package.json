@@ -4,13 +4,14 @@
   "description": "backend for an expense tracker application",
   "main": "app.ts",
   "scripts": {
-    "start": "ENVIRONMENT=local  node dist/app.js",
+    "start": "cross-env ENVIRONMENT=local  node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "deetosh",
   "license": "ISC",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.7",
@@ -25,10 +26,13 @@
     "@sequelize/postgres": "^7.0.0-alpha.43",
     "@types/express": "^5.0.0",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5"

@@ -1,6 +1,7 @@
 import express from 'express';
 import { CommonRoutesConfig } from './common.routes.config';
 import AuthController from '../modules/auth/auth.controller';
+import authMiddleware from '../middleware/auth.middleware';
 
 
 export class AuthRoutes extends CommonRoutesConfig {
@@ -15,7 +16,18 @@ export class AuthRoutes extends CommonRoutesConfig {
 
         this.app
             .route(`/${this.basePath}/${this.version}/signup`)
-            .get(AuthController.signUp);
+            .post(AuthController.signUp);
+        
+        this.app
+            .route(`/${this.basePath}/${this.version}/signin`)
+            .post(AuthController.signIn);
+
+        this.app
+            .route(`/${this.basePath}/${this.version}/signout`)
+            .post([
+                authMiddleware.verifyToken,
+                AuthController.signOut
+            ]);
         
         return this.app;
     }

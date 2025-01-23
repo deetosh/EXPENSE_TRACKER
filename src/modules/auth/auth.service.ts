@@ -5,23 +5,35 @@ if (dotenvResult.error) {
 }
 
 import express from 'express';
-import { iAuthService } from './iAuthService';
-import { serviceResponse } from '../../enum/response.types';
-import { eStatusCode } from '../../enum/status_code.enum';
+import { IAuthService } from './iAuthService';
+import { serviceResponse } from '../../interfaces/response.types';
+import { eStatusCode } from '../../interfaces/status_code.enum';
 import { setResponse } from '../../handler/responsehandler';
-import { eErrorMessage } from '../../enum/error_message.enum';
+import { eErrorMessage } from '../../interfaces/error_message.enum';
 import jwt from 'jsonwebtoken'
 import User from "../../db/models/user.model";
+import { iAuthRepo } from "./iAuthRepo";
+import { iValidationService } from "../../services/iValidationService";
+import { IJwtService } from "../../interfaces/jwt.types";
 
-const JWT_SECRET = `${process.env.JWT_AUTH_KEY}`
+const access_token_secret = `${process.env.ACCESS_TOKEN_SECRET}`
+const refresh_token_secret = `${process.env.REFRESH_TOKEN_SECRET}`
+const access_token_expiry = `${process.env.ACCESS_TOKEN_EXPIRY}`
+const refresh_token_expiry = `${process.env.REFRESH_TOKEN_EXPIRY}`
 
-export class AuthService implements iAuthService {
+export class AuthService implements IAuthService {
+    private readonly authRepo: iAuthRepo;
+    private readonly validatorService: iValidationService;
+    private readonly jwtService: IJwtService;
+
+    constructor(authRepo: iAuthRepo, validatorService: iValidationService,jwtService: IJwtService){
+        this.authRepo = authRepo;
+        this.validatorService = validatorService;
+        this.jwtService = jwtService;
+    }
 
     async signUp(
-        firstName: string,
-        lastName: string,
-        email: string,
-        password: string,
+        user: IuserSignUp
     ): Promise<serviceResponse>{
         let response: serviceResponse = {
             statusCode: eStatusCode.BAD_REQUEST,
@@ -29,44 +41,149 @@ export class AuthService implements iAuthService {
             message: "failed to register user",
         }
         try {
-            if (!firstName || !lastName || !email || !password) {
-                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "All fields are required");
-                return response;
-            }
+            // validations
+            this.validatorService.validName("First name", user.first_name);
+            this.validatorService.validName("Last name", user.last_name);
+            this.validatorService.validEmail("Email",user.email_id);
+            this.validatorService.validPassword("Password",user.password);
+            this.validatorService.validRole("Role",user.role_name);
 
-            const existingUser = await User.findOne({ where: { email } });
+            // check if the user already exists
+            const existingUser = await this.authRepo.getUserByEmail(user.email_id);
             if (existingUser) {
                 response = setResponse(response, eStatusCode.BAD_REQUEST, true, "User with same email already exists");
                 return response;
             }
 
-            // Hash the password using bcrypt
-            const hashedPassword = await User.hashPassword(password);
+            // check if the passwords match
+            if(user.password !== user.confirm_password){
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "The passwords do not match");
+                return response;
+            }
 
-            // Create a new user in the database
-            const newUser = await User.create({
-                firstName,
-                lastName,
-                email,
-                password: hashedPassword,
-            });
+            // create new user
+            const newUser:User|null = await this.authRepo.createNewUser(user);
 
-            // Generate JWT token
-            const token = jwt.sign(
-                { userId: newUser.id, email: newUser.email },
-                JWT_SECRET,
-                { expiresIn: '1h' } // Set token expiry time as needed
-            );
+            // check if the user was created
+            if(!newUser){
+                response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true, "User not created");
+                return response;
+            }
 
             const data = {
                 "id":newUser.id,
-                "firstName":newUser.firstName,
-                "lastName":newUser.lastName,
+                "firstName":newUser.first_name,
+                "lastName":newUser.last_name,
                 "email": newUser.email,
-                "access-token": token
+                "role": newUser.role,
             }
 
             response = setResponse(response,eStatusCode.OK,false,"User registered",data);
+            return response;
+        } catch (error) {
+            console.log("error: ",error);            
+            response = setResponse(response, eStatusCode.BAD_REQUEST, true, eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
+    async signIn(
+        user: IuserSignIn
+    ): Promise<serviceResponse>{
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to login user",
+        }
+        try {
+            // validations
+            this.validatorService.validEmail("Email",user.email_id);
+            this.validatorService.validPassword("Password",user.password);
+
+            // check if the user already exists
+            const existingUser = await this.authRepo.getUserByEmail(user.email_id);
+            if (!existingUser) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "No user with this email found");
+                return response;
+            }
+
+            // check password
+            const isPasswordCorrect = await User.comparePassword(user.password,existingUser.password)
+            if(!isPasswordCorrect){
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "Invalid password");
+                return response;
+            }
+
+            // generate tokens
+            const access_token = this.jwtService.generateAccessToken(existingUser);
+            const refresh_token = this.jwtService.generateRefreshToken(existingUser);
+            
+            // save refresh token for user
+            existingUser.refresh_token = refresh_token;
+            await existingUser.save(
+                {
+                    validate: false
+                }
+            );
+
+            const data = {
+                "id":existingUser.id,
+                "firstName":existingUser.first_name,
+                "lastName":existingUser.last_name,
+                "email": existingUser.email,
+                "role": existingUser.role,
+                "verified": existingUser.verified,
+                "access-token": access_token
+            }
+
+            const cookie_data = [
+                {
+                    name: "access_token",
+                    value: access_token
+                },
+                {
+                    name: "refresh_token",
+                    value: refresh_token
+                }
+            ]
+
+            response = setResponse(response,eStatusCode.OK,false,"User Logged In Successfully",data,cookie_data);
+            return response;
+        } catch (error) {
+            console.log("error: ",error);            
+            response = setResponse(response, eStatusCode.BAD_REQUEST, true, eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
+    async signOut(
+        user: Iuser
+    ): Promise<serviceResponse>{
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to signout user",
+        }
+        try {
+            // remove refresh token for user
+            await User.update({
+                refresh_token: null
+            },{
+                where: {
+                    id: user.id
+                }
+            });
+
+            const cookie_data = [
+                {
+                    name: "access_token",
+                },
+                {
+                    name: "refresh_token"
+                }
+            ]
+
+            response = setResponse(response,eStatusCode.OK,false,"User Logged out Successfully",{},cookie_data);
             return response;
         } catch (error) {
             console.log("error: ",error);            

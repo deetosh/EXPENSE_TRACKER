@@ -5,12 +5,15 @@ const dbConn = EXTR_DB.getConnection();
 
 interface UserAttributes {
     id: number;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     createdAt: Date;
     updatedAt: Date;
+    role: string;
+    verified: boolean;
+    refresh_token: string | null;
 }
 
 // Define the input attributes for creating a new User
@@ -19,15 +22,18 @@ interface UserAttributes {
   tell Sequelize and TypeScript that the property id,
   in this case, is optional to be passed at creation time
 */
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'verified' | 'refresh_token'> {}
 
 // Extend Sequelize's Model class with the User attributes and creation attributes
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;
-    public firstName!: string;
-    public lastName!: string;
+    public first_name!: string;
+    public last_name!: string;
     public email!: string;
     public password!: string;
+    public role!: string;
+    public verified!: boolean;
+    public refresh_token!: string | null;
   
     // Timestamps
     public createdAt!: Date;
@@ -48,7 +54,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     }
   }
 
-//   export default (sequelize: Sequelize): typeof User => {
     User.init(
       {
         id: {
@@ -57,12 +62,12 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
           primaryKey: true,
           field: 'id'
         },
-        firstName: {
+        first_name: {
           type: DataTypes.STRING,
           allowNull: false,
           field: 'first_name',
         },
-        lastName: {
+        last_name: {
           type: DataTypes.STRING,
           allowNull: false,
           field: 'last_name',
@@ -91,6 +96,24 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         updatedAt:{
             type: DataTypes.DATE,
             field: 'updated_at'
+        },
+        role: {
+          type: DataTypes.ENUM('user', 'admin'),
+          allowNull: false,
+          field: 'role',
+          validate: {
+            isIn: [['user', 'admin']],
+          },
+        },
+        verified: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          field: 'verified',
+          defaultValue: 'true',
+        },
+        refresh_token: {
+          type: DataTypes.STRING,
+          field: 'refresh_token',
         }
       },
       {
@@ -100,8 +123,5 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         timestamps: true,  // Enable createdAt and updatedAt
       }
     );
-  
-//     return User;
-//   };
 
 export default User;

@@ -52,4 +52,30 @@ export class ExpenseService implements IExpenseService {
         }
     }
 
+    async getExpenses(  
+        userId: number,
+        pageNo: number
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to fetch expenses",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validNumber("Page Number", pageNo);
+
+            const result = await this.expenseRepo.getExpenses(userId,pageNo);
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Expenses fetched successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
 }

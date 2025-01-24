@@ -6,4 +6,9 @@ export interface IExpenseService {
     addExpense: (
         expense: IAddExpense
     ) => Promise <serviceResponse> ;
+
+    getExpenses: (
+        userId: number,
+        pageNo: number,
+    ) => Promise <serviceResponse> ;
 }

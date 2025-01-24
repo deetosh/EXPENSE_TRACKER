@@ -15,6 +15,7 @@ class ExpenseController {
     ) {
         this.expenseService = expenseService;
         this.addExpense = this.addExpense.bind(this);
+        this.getExpenses = this.getExpenses.bind(this);
     }
 
     async addExpense(
@@ -33,6 +34,36 @@ class ExpenseController {
             }
 
             const response = await this.expenseService.addExpense(payload);
+            if (response) {
+                responseHandler(
+                    res,
+                    response.statusCode,
+                    response.isError,
+                    response.message,
+                    response?.data
+                )
+            }
+        } catch (error) {
+            console.log(error);
+            responseHandler(
+                res,
+                eStatusCode.INTERNAL_SERVER_ERROR,
+                true,
+                error ? `${error}` : eErrorMessage.ServerError
+            );
+        }
+    }
+
+    async getExpenses(
+        req: express.Request,
+        res: express.Response
+    ): Promise<void> {
+
+        try {
+            const userid = Number(req.body.userDetails.id);
+            const pageNo = req.query.pageNo ? Number(req.query.pageNo) : 1;
+
+            const response = await this.expenseService.getExpenses(userid,pageNo);
             if (response) {
                 responseHandler(
                     res,

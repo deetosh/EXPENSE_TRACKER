@@ -10,8 +10,11 @@ export class ExpensesRoutes extends CommonRoutesConfig {
 
     configureRoutes() {
         this.app
-            .route(`/${this.basePath}/${this.version}`)
-            .get();   
+            .route(`/${this.basePath}/${this.version}/expenses`)
+            .get([
+                authMiddleware.verifyToken,
+                ExpenseController.getExpenses
+            ]);   
 
         // adding a new expense 
         this.app

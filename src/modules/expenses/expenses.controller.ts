@@ -4,7 +4,7 @@ import { eStatusCode } from "../../interfaces/status_code.enum";
 import { ValidationService } from "../../services/validation_services";
 import { ExpenseRepo } from "./expenses.repo";
 import { ExpenseService } from "./expenses.service";
-import { IAddExpense, IExpense, IUpdateExpense } from "./expenses.type";
+import { IAddExpense, IExpense, IFilterDate, IFilterExpense, IUpdateExpense } from "./expenses.type";
 import { IExpenseService } from "./iExpensesService";
 import express from 'express';
 
@@ -64,8 +64,23 @@ class ExpenseController {
         try {
             const userid = Number(req.body.userDetails.id);
             const pageNo = req.query.pageNo ? Number(req.query.pageNo) : 1;
-
-            const response = await this.expenseService.getExpenses(userid, pageNo);
+            let filterDate: IFilterDate | null;
+            if(req.body.filter_date?.from_date && req.body.filter_date?.to_date){
+                filterDate = {
+                    filter_date_from : new Date(req.body.filter_date.from_date),
+                    filter_date_to : new Date(req.body.filter_date.to_date)
+                }
+            }
+            else{
+                filterDate = null;
+            }
+            const filterData: IFilterExpense = {
+                filter_amount: req.body.amount?.amount_from && req.body.amount?.amount_to ? {amount_from: Number(req.body.amount.amount_from), amount_to: Number(req.body.amount.amount_to)} : null,
+                filter_date: filterDate,
+                category: req.body.category ? String(req.body.category) : null,
+                payment_mode: req.body.payment_mode ? String(req.body.payment_mode) : null,
+            };
+            const response = await this.expenseService.getExpenses(userid, pageNo,filterData);
             if (response) {
                 responseHandler(
                     res,

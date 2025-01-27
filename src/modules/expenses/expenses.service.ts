@@ -6,7 +6,7 @@ if (dotenvResult.error) {
 import { IExpenseService } from "./iExpensesService";
 import { IExpenseRepo } from "./iExpensesRepo";
 import express from 'express';
-import { IAddExpense, IExpense, IUpdateExpense } from "./expenses.type";
+import { IAddExpense, IExpense, IFilterExpense, IUpdateExpense } from "./expenses.type";
 import { serviceResponse } from "../../interfaces/response.types";
 import { eStatusCode } from "../../interfaces/status_code.enum";
 import { setResponse } from "../../handler/responsehandler";
@@ -54,7 +54,8 @@ export class ExpenseService implements IExpenseService {
 
     async getExpenses(  
         userId: number,
-        pageNo: number
+        pageNo: number,
+        filterData: IFilterExpense
     ): Promise <serviceResponse> {
         let response: serviceResponse = {
             statusCode: eStatusCode.BAD_REQUEST,
@@ -65,8 +66,22 @@ export class ExpenseService implements IExpenseService {
             // validations
             this.validatorService.validNumber("User ID", userId);
             this.validatorService.validNumber("Page Number", pageNo);
-
-            const result = await this.expenseRepo.getExpenses(userId,pageNo);
+            if(filterData.filter_date) {
+                this.validatorService.validDate("Filter Date From", filterData.filter_date.filter_date_from);
+                this.validatorService.validDate("Filter Date To", filterData.filter_date.filter_date_to);
+            }
+            if(filterData.filter_amount) {
+                this.validatorService.validNumber("Amount From", filterData.filter_amount.amount_from);
+                this.validatorService.validNumber("Amount To", filterData.filter_amount.amount_to);
+            }
+            if(filterData.category) {
+                this.validatorService.validCategory("Category", filterData.category);
+            }
+            if(filterData.payment_mode) {
+                this.validatorService.validPaymentMode("Payment Mode", filterData.payment_mode);
+            }
+            
+            const result = await this.expenseRepo.getExpenses(userId,pageNo,filterData);
             if (result) {
                 response = setResponse(response, eStatusCode.OK, false, "Expenses fetched successfully", result);
             }

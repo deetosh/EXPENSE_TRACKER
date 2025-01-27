@@ -4,7 +4,7 @@ import EXTR_DB from '../../db/database';
 import { eErrorMessage } from "../../interfaces/error_message.enum";
 const dbConn = EXTR_DB.getConnection();
 import { QueryTypes } from "sequelize";
-import { IExpense, IUpdateExpense } from "./expenses.type";
+import { IExpense, IFilterExpense, IUpdateExpense } from "./expenses.type";
 
 export class ExpenseRepo implements IExpenseRepo {
     async addExpense(expense: any): Promise<any> {
@@ -32,19 +32,41 @@ export class ExpenseRepo implements IExpenseRepo {
 
     async getExpenses(
         userId: number,
-        pageNo: number
+        pageNo: number,
+        filterData: IFilterExpense
     ): Promise<IExpense[]> {
         try {
             let offset = 0;
             if (pageNo > 1)
                 offset = (pageNo - 1) * 20;
-
+            const variables = [];
+            variables.push(userId);
             const table_name='expenses';
             let query=`
                 select * from ${table_name} where user_id = ?`;
 
+            if(filterData.filter_date){
+                query += ` and _date between ? and ?`;
+                variables.push(filterData.filter_date.filter_date_from);
+                variables.push(filterData.filter_date.filter_date_to);
+            } 
+            if(filterData.filter_amount){
+                query += ` and amount between ? and ?`;
+                variables.push(filterData.filter_amount.amount_from);
+                variables.push(filterData.filter_amount.amount_to);
+            }
+            if(filterData.category){
+                query += ` and category = ?`;
+                variables.push(filterData.category);
+            }
+            if(filterData.payment_mode){
+                query += ` and payment_method = ?`;
+                variables.push(filterData.payment_mode);
+            }
+
+
             query += ` limit 20 OFFSET ?`;
-            const variables=[userId,offset]
+            variables.push(offset);
             const rows= await dbConn.query(query,{
                 replacements: variables,
                 type: QueryTypes.SELECT

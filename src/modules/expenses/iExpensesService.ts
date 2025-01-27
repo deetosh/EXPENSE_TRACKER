@@ -1,5 +1,5 @@
 import express from 'express';
-import { IAddExpense, IExpense, IUpdateExpense } from './expenses.type';
+import { IAddExpense, IExpense, IFilterExpense, IUpdateExpense } from './expenses.type';
 import { serviceResponse } from '../../interfaces/response.types';
 
 export interface IExpenseService {
@@ -10,6 +10,8 @@ export interface IExpenseService {
     getExpenses: (
         userId: number,
         pageNo: number,
+        filterData: IFilterExpense, 
+
     ) => Promise <serviceResponse> ;
 
     updateExpenses: (

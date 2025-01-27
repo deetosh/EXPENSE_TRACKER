@@ -21,4 +21,10 @@ Members:
     <td>22CS10032</td>
     <td>IshaanJain107</td>
   </tr>
+   <tr>
+    <td>3</td>
+    <td>Aashray Tandon</td>
+    <td>22CS30002</td>
+    <td>allout1</td>
+  </tr>
 </table>

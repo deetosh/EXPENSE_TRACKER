@@ -6,7 +6,7 @@ if (dotenvResult.error) {
 import { IExpenseService } from "./iExpensesService";
 import { IExpenseRepo } from "./iExpensesRepo";
 import express from 'express';
-import { IAddExpense, IExpense } from "./expenses.type";
+import { IAddExpense, IExpense, IUpdateExpense } from "./expenses.type";
 import { serviceResponse } from "../../interfaces/response.types";
 import { eStatusCode } from "../../interfaces/status_code.enum";
 import { setResponse } from "../../handler/responsehandler";
@@ -69,6 +69,58 @@ export class ExpenseService implements IExpenseService {
             const result = await this.expenseRepo.getExpenses(userId,pageNo);
             if (result) {
                 response = setResponse(response, eStatusCode.OK, false, "Expenses fetched successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
+    async updateExpenses(
+        userId: number,
+        expenseData: IUpdateExpense
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to update expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validNumber("Expense ID", expenseData.expense_id);
+            let count = 0;
+            if(expenseData.amount) {
+                this.validatorService.validNumber("Amount", expenseData.amount);
+                count++;
+            }
+            if(expenseData.description) {
+                this.validatorService.validStringData("Description", expenseData.description);
+                count++;
+            }
+            if(expenseData.category) {
+                this.validatorService.validCategory("Category", expenseData.category);
+                count++;
+            }
+            if(expenseData.payment_mode) {
+                this.validatorService.validPaymentMode("Payment Mode", expenseData.payment_mode);
+                count++;
+            }
+            if(expenseData.date) {
+                this.validatorService.validDate("Date", expenseData.date);
+                count++;
+            }
+
+            if(count === 0) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "Atleast one field is required to update");
+                return response;
+            }
+
+            const result = await this.expenseRepo.updateExpenses(userId,expenseData);
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Expense updated successfully", result);
             }
             return response;
         } catch (error) {

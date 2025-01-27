@@ -24,6 +24,14 @@ export class ExpensesRoutes extends CommonRoutesConfig {
                 ExpenseController.addExpense
             ]);
 
+        // updating an expense api
+        this.app
+            .route(`/${this.basePath}/${this.version}/expenses/update`)
+            .post([
+                authMiddleware.verifyToken,
+                ExpenseController.updateExpense
+            ]);
+
         return this.app;
     }
 }

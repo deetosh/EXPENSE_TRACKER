@@ -27,4 +27,11 @@ Members:
     <td>22CS30002</td>
     <td>allout1</td>
   </tr>
+  <tr>
+    <td>4</td>
+    <td>Rohit Bohra</td>
+    <td>22EE30039</td>
+    <td>RohitBohra-001</td>
+</td>
+  </tr>
 </table>

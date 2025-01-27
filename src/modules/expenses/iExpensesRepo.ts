@@ -1,9 +1,9 @@
 import express from 'express';
-import { IAddExpense, IExpense, IUpdateExpense } from './expenses.type';
+import { IAddExpense, IExpense, IFilterExpense, IUpdateExpense } from './expenses.type';
 
 export interface IExpenseRepo {
     addExpense:(expense: IAddExpense) => Promise<any>;
-    getExpenses:(userId: number,pageNo:number) => Promise<IExpense[]>;
+    getExpenses:(userId: number,pageNo:number,filterData:IFilterExpense) => Promise<IExpense[]>;
     updateExpenses:(userId: number,expenseData: IUpdateExpense) => Promise<boolean>;
     deleteExpense:(userId: number,expenseId: number) => Promise<boolean>;
 }

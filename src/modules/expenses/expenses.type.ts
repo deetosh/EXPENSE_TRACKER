@@ -25,3 +25,18 @@ export interface IUpdateExpense{
     category: string | null,
     payment_mode: string | null
 }
+export interface IFilterExpense{
+    filter_date:IFilterDate| null,
+    category: string | null,
+    payment_mode: string | null,
+    filter_amount: IFilterAmount | null
+
+}
+export interface IFilterDate{
+    filter_date_from: Date,
+    filter_date_to: Date
+}
+export interface IFilterAmount{
+    amount_from: number,
+    amount_to: number
+}

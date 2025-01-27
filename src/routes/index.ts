@@ -18,6 +18,7 @@ class RouterConfig{
         const routes: Array<CommonRoutesConfig> = [
             new AuthRoutes(this.app, baseRouterPath,apiVersion),
             new ExpensesRoutes(this.app,baseRouterPath,apiVersion),
+            new ExpensesRoutes(this.app,baseRouterPath,apiVersion),
         ];
         return routes;
     }

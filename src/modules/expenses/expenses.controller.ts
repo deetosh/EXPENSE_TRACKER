@@ -17,6 +17,7 @@ class ExpenseController {
         this.addExpense = this.addExpense.bind(this);
         this.getExpenses = this.getExpenses.bind(this);
         this.updateExpense = this.updateExpense.bind(this);
+        this.deleteExpense = this.deleteExpense.bind(this);
     }
 
     async addExpense(
@@ -64,7 +65,7 @@ class ExpenseController {
             const userid = Number(req.body.userDetails.id);
             const pageNo = req.query.pageNo ? Number(req.query.pageNo) : 1;
 
-            const response = await this.expenseService.getExpenses(userid,pageNo);
+            const response = await this.expenseService.getExpenses(userid, pageNo);
             if (response) {
                 responseHandler(
                     res,
@@ -101,7 +102,37 @@ class ExpenseController {
                 date: req.body.date ? new Date(req.body.date) : null
             }
 
-            const response = await this.expenseService.updateExpenses(userid,expenseData);
+            const response = await this.expenseService.updateExpenses(userid, expenseData);
+            if (response) {
+                responseHandler(
+                    res,
+                    response.statusCode,
+                    response.isError,
+                    response.message,
+                    response?.data
+                )
+            }
+        } catch (error) {
+            console.log(error);
+            responseHandler(
+                res,
+                eStatusCode.INTERNAL_SERVER_ERROR,
+                true,
+                error ? `${error}` : eErrorMessage.ServerError
+            );
+        }
+    }
+
+    async deleteExpense(
+        req: express.Request,
+        res: express.Response
+    ): Promise<void> {
+
+        try {
+            const userid = Number(req.body.userDetails.id);
+            const expense_id = Number(req.query.expense_id);
+
+            const response = await this.expenseService.deleteExpense(userid, expense_id);
             if (response) {
                 responseHandler(
                     res,
@@ -128,5 +159,5 @@ class ExpenseController {
 
 const expenseRepo = new ExpenseRepo();
 const validatorService = new ValidationService();
-const expenseService = new ExpenseService(expenseRepo,validatorService);
+const expenseService = new ExpenseService(expenseRepo, validatorService);
 export default new ExpenseController(expenseService);

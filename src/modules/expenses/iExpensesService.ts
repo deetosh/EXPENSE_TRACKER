@@ -16,4 +16,9 @@ export interface IExpenseService {
         userId: number,
         expenseData: IUpdateExpense,
     ) => Promise <serviceResponse> ;
+
+    deleteExpense: (
+        userId: number,
+        expenseId: number,
+    ) => Promise <serviceResponse> ;
 }

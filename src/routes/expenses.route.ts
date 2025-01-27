@@ -27,9 +27,17 @@ export class ExpensesRoutes extends CommonRoutesConfig {
         // updating an expense api
         this.app
             .route(`/${this.basePath}/${this.version}/expenses/update`)
-            .post([
+            .patch([
                 authMiddleware.verifyToken,
                 ExpenseController.updateExpense
+            ]);
+
+        // deleting an expense api
+        this.app
+            .route(`/${this.basePath}/${this.version}/expenses/delete`)
+            .delete([
+                authMiddleware.verifyToken,
+                ExpenseController.deleteExpense
             ]);
 
         return this.app;

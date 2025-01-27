@@ -130,4 +130,30 @@ export class ExpenseService implements IExpenseService {
         }
     }
 
+    async deleteExpense(  
+        userId: number,
+        expenseId: number
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to delete expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validNumber("Expense ID", expenseId);
+
+            const result = await this.expenseRepo.deleteExpense(userId,expenseId);
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Expense deleted successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
 }

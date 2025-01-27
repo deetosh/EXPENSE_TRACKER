@@ -116,4 +116,25 @@ export class ExpenseRepo implements IExpenseRepo {
             throw eErrorMessage.ServerError;
         }
     }
+
+    async deleteExpense(
+        userId: number,
+        expenseId: number
+    ): Promise<boolean> {
+        try {
+            const table_name='expenses';
+            const query=`
+                delete from ${table_name} where id = ? and user_id = ?`
+            const variables=[expenseId, userId]
+            await dbConn.query(query,{
+                replacements: variables,
+                type: QueryTypes.DELETE
+            });
+            return true;
+        } 
+        catch (error) {
+            console.log(error);
+            throw eErrorMessage.ServerError;
+        }
+    }
 }

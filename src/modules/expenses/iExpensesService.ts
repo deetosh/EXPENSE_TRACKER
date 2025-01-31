@@ -23,4 +23,8 @@ export interface IExpenseService {
         userId: number,
         expenseId: number,
     ) => Promise <serviceResponse> ;
+
+    getDailyExpenses: (
+        userId: number,
+    ) => Promise <serviceResponse> ;
 }

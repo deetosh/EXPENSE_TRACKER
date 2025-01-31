@@ -18,6 +18,7 @@ class ExpenseController {
         this.getExpenses = this.getExpenses.bind(this);
         this.updateExpense = this.updateExpense.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
+        this.getDailyExpenses = this.getDailyExpenses.bind(this);
     }
 
     async addExpense(
@@ -148,6 +149,35 @@ class ExpenseController {
             const expense_id = Number(req.query.expense_id);
 
             const response = await this.expenseService.deleteExpense(userid, expense_id);
+            if (response) {
+                responseHandler(
+                    res,
+                    response.statusCode,
+                    response.isError,
+                    response.message,
+                    response?.data
+                )
+            }
+        } catch (error) {
+            console.log(error);
+            responseHandler(
+                res,
+                eStatusCode.INTERNAL_SERVER_ERROR,
+                true,
+                error ? `${error}` : eErrorMessage.ServerError
+            );
+        }
+    }
+
+    async getDailyExpenses(
+        req: express.Request,
+        res: express.Response
+    ): Promise<void> {
+
+        try {
+            const userid = Number(req.body.userDetails.id);
+
+            const response = await this.expenseService.getDailyExpenses(userid);
             if (response) {
                 responseHandler(
                     res,

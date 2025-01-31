@@ -6,4 +6,6 @@ export interface IExpenseRepo {
     getExpenses:(userId: number,pageNo:number,filterData:IFilterExpense) => Promise<IExpense[]>;
     updateExpenses:(userId: number,expenseData: IUpdateExpense) => Promise<boolean>;
     deleteExpense:(userId: number,expenseId: number) => Promise<boolean>;
+    getDailyExpenses:(userId: number,from_date: string,to_Date:string) => Promise<any[]>;
+
 }

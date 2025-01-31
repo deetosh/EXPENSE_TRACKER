@@ -40,6 +40,14 @@ export class ExpensesRoutes extends CommonRoutesConfig {
                 ExpenseController.deleteExpense
             ]);
 
+        // get 7 days expenses
+        this.app
+            .route(`/${this.basePath}/${this.version}/expenses/daily`)
+            .get([
+                authMiddleware.verifyToken,
+                ExpenseController.getDailyExpenses
+            ]);
+
         return this.app;
     }
 }

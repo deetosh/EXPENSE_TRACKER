@@ -171,4 +171,56 @@ export class ExpenseService implements IExpenseService {
         }
     }
 
+    async getDailyExpenses(  
+        userId: number,
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to fetch daily expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            const today = new Date(); // get today's date
+            const sevenDaysEarlier = new Date();
+            sevenDaysEarlier.setDate(today.getDate() - 6);
+
+            console.log("today:",today);
+            console.log("sevenDaysEarlier:",sevenDaysEarlier);
+
+            const today_date = today.toISOString().split('T')[0];
+            const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
+
+            const result = await this.expenseRepo.getDailyExpenses(userId,sevenDaysEarlier_date,today_date);
+
+            const expenseMap = new Map(result.map((entry: { date: string; amount: number }) => [entry.date, entry.amount]));
+
+            const finalExpenses: { date: string; amount: number }[] = [];
+            let currentDate = new Date(sevenDaysEarlier);
+
+            while (currentDate <= today) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+
+                finalExpenses.push({
+                    date: dateStr,
+                    amount: expenseMap.get(dateStr) || 0,
+                });
+
+                // Move to the next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Daily expense fetched successfully", finalExpenses);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
 }

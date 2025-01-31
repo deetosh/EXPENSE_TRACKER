@@ -173,6 +173,7 @@ export class ExpenseService implements IExpenseService {
 
     async getDailyExpenses(  
         userId: number,
+        type: string
     ): Promise <serviceResponse> {
         let response: serviceResponse = {
             statusCode: eStatusCode.BAD_REQUEST,
@@ -182,23 +183,34 @@ export class ExpenseService implements IExpenseService {
         try {
             // validations
             this.validatorService.validNumber("User ID", userId);
-            const today = new Date(); // get today's date
-            const sevenDaysEarlier = new Date();
+            this.validatorService.validStringData("Type", type);
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const today = new Date(now.getTime() + istOffset);
+            console.log("today:",today);
+            const sevenDaysEarlier = new Date(now.getTime() + istOffset);
+            const lastMonth = new Date(now.getTime() + istOffset);
             sevenDaysEarlier.setDate(today.getDate() - 6);
-
+            lastMonth.setMonth(today.getMonth() - 1);
             console.log("today:",today);
             console.log("sevenDaysEarlier:",sevenDaysEarlier);
 
             const today_date = today.toISOString().split('T')[0];
             const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
-
-            const result = await this.expenseRepo.getDailyExpenses(userId,sevenDaysEarlier_date,today_date);
-
+            const lastMonth_date = lastMonth.toISOString().split('T')[0];
+            let result, currentDate;
+            if(type === "daily") {
+                result = await this.expenseRepo.getDailyExpenses(userId,sevenDaysEarlier_date,today_date);
+                currentDate = new Date(sevenDaysEarlier);
+            }
+            else{
+                result = await this.expenseRepo.getDailyExpenses(userId,lastMonth_date,today_date);
+                currentDate = new Date(lastMonth);
+            }
             const expenseMap = new Map(result.map((entry: { date: string; amount: number }) => [entry.date, entry.amount]));
 
             const finalExpenses: { date: string; amount: number }[] = [];
-            let currentDate = new Date(sevenDaysEarlier);
-
+            
             while (currentDate <= today) {
                 const dateStr = currentDate.toISOString().split('T')[0];
 

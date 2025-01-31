@@ -176,8 +176,9 @@ class ExpenseController {
 
         try {
             const userid = Number(req.body.userDetails.id);
-
-            const response = await this.expenseService.getDailyExpenses(userid);
+            const type= req.query.type ? String(req.query.type) : "daily";
+            const response = await this.expenseService.getDailyExpenses(userid,type);
+            
             if (response) {
                 responseHandler(
                     res,

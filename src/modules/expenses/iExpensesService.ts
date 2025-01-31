@@ -26,5 +26,6 @@ export interface IExpenseService {
 
     getDailyExpenses: (
         userId: number,
+        type: string,
     ) => Promise <serviceResponse> ;
 }

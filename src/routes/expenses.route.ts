@@ -47,6 +47,12 @@ export class ExpensesRoutes extends CommonRoutesConfig {
                 authMiddleware.verifyToken,
                 ExpenseController.getDailyExpenses
             ]);
+        this.app
+            .route(`/${this.basePath}/${this.version}/expenses/category`)
+            .get([
+                authMiddleware.verifyToken,
+                ExpenseController.getCategoryExpenses
+            ]);
 
         return this.app;
     }

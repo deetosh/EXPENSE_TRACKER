@@ -28,4 +28,8 @@ export interface IExpenseService {
         userId: number,
         type: string,
     ) => Promise <serviceResponse> ;
+    getCategoryExpenses: (
+        userId: number,
+        duration: string,
+    ) => Promise <serviceResponse> ;
 }

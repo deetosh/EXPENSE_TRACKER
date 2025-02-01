@@ -7,15 +7,27 @@ import express from 'express'
 import RouterConfig from "./src/routes";
 import cors from "cors"
 import cookie from "cookie-parser"
-
+import './src/modules/auth/passport'
+import passport from 'passport'
+import session from 'express-session'
 
 const app: express.Application = express();
 const port = process.env.PORT;
+
+app.use(session({
+  secret: 'EXPENSE_TRACKER_AZAD_SESSION',   // You should use a secure, random secret key
+  resave: false,               // Don't save session if not modified
+  saveUninitialized: false,    // Don't create session until something is stored
+  cookie: { secure: false }    // Set to true if using HTTPS
+}));
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookie());
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Configure the routes
 const routerConfig = new RouterConfig(app);

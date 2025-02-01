@@ -1,6 +1,6 @@
 import express from 'express'
 import User from '../../db/models/user.model';
-
+import passportGoogle from 'passport-google-oauth20';
 export interface iAuthRepo {
     getUserByEmail: (
         email: string
@@ -12,5 +12,10 @@ export interface iAuthRepo {
 
     createNewUser: (
         user: IuserSignUp
+    ) => Promise<User | null>;
+
+    createNewGoogleUser: (
+        profile: passportGoogle.Profile,
+        refreshToken: string,
     ) => Promise<User | null>;
 }

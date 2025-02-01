@@ -15,6 +15,8 @@ import User from "../../db/models/user.model";
 import { iAuthRepo } from "./iAuthRepo";
 import { iValidationService } from "../../services/iValidationService";
 import { IJwtService } from "../../interfaces/jwt.types";
+import passport from "passport";
+import passportGoogle from 'passport-google-oauth20';
 
 const access_token_secret = `${process.env.ACCESS_TOKEN_SECRET}`
 const refresh_token_secret = `${process.env.REFRESH_TOKEN_SECRET}`
@@ -191,5 +193,109 @@ export class AuthService implements IAuthService {
             return response;
         }
     }
+
+    async googleOAuth(
+        accessToken: string,
+        refreshToken: string,
+        profile: passportGoogle.Profile,
+    ): Promise<User | null>{
+        try {
+            console.log("accessToken: ",accessToken);
+            console.log("refreshToken: ",refreshToken);
+            console.log("profile: ",profile);
+
+            const email = profile.emails ? profile.emails[0].value : null;
+            if(email === null){
+                return null;  
+            }
+            this.validatorService.validEmail("Email",email);
+
+            const existingUser = await this.authRepo.getUserByEmail(email);
+            if(!existingUser){
+                // console.log("creating new user");
+                const newUser:User|null = await this.authRepo.createNewGoogleUser(profile,refreshToken);
+                if(newUser){
+                    return newUser;
+                }
+                else{
+                    return null;
+                }
+            }
+            else{
+                console.log("updating existing user");
+                await existingUser.save(
+                    {
+                        validate: false
+                    }
+                );
+                return existingUser;
+            }
+        } catch (error) {
+            console.log("error: ",error);
+            return null;
+        }
+    }
+
+    async googleOAuthValidate(
+        email: string,
+    ): Promise<serviceResponse>{
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to login user",
+        }
+        try {
+            // validations
+            this.validatorService.validEmail("Email",email);
+
+            // check if the user already exists
+            const existingUser = await this.authRepo.getUserByEmail(email);
+            if (!existingUser) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, "No user with this email found");
+                return response;
+            }
+
+            // generate tokens
+            const access_token = this.jwtService.generateAccessToken(existingUser);
+            const refresh_token = this.jwtService.generateRefreshToken(existingUser);
+            
+            // save refresh token for user
+            existingUser.refresh_token = refresh_token;
+            await existingUser.save(
+                {
+                    validate: false
+                }
+            );
+
+            const data = {
+                "id":existingUser.id,
+                "firstName":existingUser.first_name,
+                "lastName":existingUser.last_name,
+                "email": existingUser.email,
+                "role": existingUser.role,
+                "verified": existingUser.verified,
+                "access-token": access_token
+            }
+
+            const cookie_data = [
+                {
+                    name: "access_token",
+                    value: access_token
+                },
+                {
+                    name: "refresh_token",
+                    value: refresh_token
+                }
+            ]
+
+            response = setResponse(response,eStatusCode.OK,false,"User Logged In Successfully",data,cookie_data);
+            return response;
+        } catch (error) {
+            console.log("error: ",error);            
+            response = setResponse(response, eStatusCode.BAD_REQUEST, true, eErrorMessage.ServerError);
+            return response;
+        }
+    }
+    
 
 }

@@ -184,4 +184,28 @@ export class ExpenseRepo implements IExpenseRepo {
             throw eErrorMessage.ServerError;
         }
     }
+    async getCategoryExpenses(
+        userId: number,
+        from_date: string,
+        to_Date: string
+    ): Promise<any[]> {
+        try {
+            const table_name='expenses';
+            const query=`
+                select category,sum(amount) as amount from ${table_name} 
+                where user_id = ? and _date between ? and ?
+                group by category
+                `
+            const variables=[userId, from_date, to_Date]
+            const rows= await dbConn.query(query,{
+                replacements: variables,
+                type: QueryTypes.SELECT
+            });
+            return rows;
+        } 
+        catch (error) {
+            console.log(error);
+            throw eErrorMessage.ServerError;
+        }
+    }
 }

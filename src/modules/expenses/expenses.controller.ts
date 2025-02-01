@@ -19,6 +19,7 @@ class ExpenseController {
         this.updateExpense = this.updateExpense.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.getDailyExpenses = this.getDailyExpenses.bind(this);
+        this.getCategoryExpenses = this.getCategoryExpenses.bind(this);
     }
 
     async addExpense(
@@ -178,6 +179,35 @@ class ExpenseController {
             const userid = Number(req.body.userDetails.id);
             const type= req.query.type ? String(req.query.type) : "daily";
             const response = await this.expenseService.getDailyExpenses(userid,type);
+            
+            if (response) {
+                responseHandler(
+                    res,
+                    response.statusCode,
+                    response.isError,
+                    response.message,
+                    response?.data
+                )
+            }
+        } catch (error) {
+            console.log(error);
+            responseHandler(
+                res,
+                eStatusCode.INTERNAL_SERVER_ERROR,
+                true,
+                error ? `${error}` : eErrorMessage.ServerError
+            );
+        }
+    }
+    async getCategoryExpenses(
+        req: express.Request,
+        res: express.Response
+    ): Promise<void> {
+
+        try {
+            const userid = Number(req.body.userDetails.id);
+            const duration= req.query.type ? String(req.query.type) : "weekly";
+            const response = await this.expenseService.getCategoryExpenses(userid,duration);
             
             if (response) {
                 responseHandler(

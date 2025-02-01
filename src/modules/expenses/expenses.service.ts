@@ -13,6 +13,7 @@ import { setResponse } from "../../handler/responsehandler";
 import { eErrorMessage } from "../../interfaces/error_message.enum";
 import { iValidationService } from "../../services/iValidationService";
 
+const CATEGORIES = ['education','food','healthcare','investment','personal','transport','utility','other'];
 export class ExpenseService implements IExpenseService {
     private readonly validatorService: iValidationService;
     private readonly expenseRepo: IExpenseRepo;
@@ -187,14 +188,23 @@ export class ExpenseService implements IExpenseService {
             const now = new Date();
             const istOffset = 5.5 * 60 * 60 * 1000;
             const today = new Date(now.getTime() + istOffset);
-            console.log("today:",today);
-            const sevenDaysEarlier = new Date(now.getTime() + istOffset);
-            const lastMonth = new Date(now.getTime() + istOffset);
-            sevenDaysEarlier.setDate(today.getDate() - 6);
-            lastMonth.setMonth(today.getMonth() - 1);
+
+            const sevenDaysEarlier = new Date(today);
+            const lastMonth = new Date(today);
+
+            if(today.getDate()>6){
+                sevenDaysEarlier.setDate(today.getDate() - 6);
+            }
+            else{
+                sevenDaysEarlier.setMonth(today.getMonth());
+                sevenDaysEarlier.setDate(1);
+            }
+            lastMonth.setMonth(today.getMonth());
+            lastMonth.setDate(1);
+            
             console.log("today:",today);
             console.log("sevenDaysEarlier:",sevenDaysEarlier);
-
+            console.log("lastMonth:",lastMonth);
             const today_date = today.toISOString().split('T')[0];
             const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
             const lastMonth_date = lastMonth.toISOString().split('T')[0];
@@ -234,5 +244,86 @@ export class ExpenseService implements IExpenseService {
             return response;
         }
     }
+    async getCategoryExpenses(  
+        userId: number,
+        duration: string
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to fetch category expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validStringData("Type", duration);
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const today = new Date(now.getTime() + istOffset);
+
+            console.log("today:",today);
+
+            const sevenDaysEarlier = new Date(today.getTime());
+            const lastMonth = new Date(today.getTime());
+            const month= today.getMonth();
+
+            if(today.getDate()>6){
+                sevenDaysEarlier.setDate(today.getDate() - 6);
+            }
+            else{
+                sevenDaysEarlier.setMonth(today.getMonth());
+                sevenDaysEarlier.setDate(1);
+            }
+            lastMonth.setMonth(today.getMonth());
+            lastMonth.setDate(1);
+            
+            console.log("sevenDaysEarlier:",sevenDaysEarlier);
+            console.log("lastMonth:",lastMonth);
+
+            const today_date = today.toISOString().split('T')[0];
+            const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
+            const lastMonth_date = lastMonth.toISOString().split('T')[0];
+
+            let result;
+            if(duration === "weekly") {
+                result = await this.expenseRepo.getCategoryExpenses(userId,sevenDaysEarlier_date,today_date);
+                // currentDate = new Date(sevenDaysEarlier);
+            }
+            else{
+                result = await this.expenseRepo.getCategoryExpenses(userId,lastMonth_date,today_date);
+                // currentDate = new Date(lastMonth);
+            }
+            const expenseMap = new Map(result.map((entry: { category: string; amount: number }) => [entry.category, entry.amount]));
+
+            const finalExpenses: { category: string; amount: number }[] = [];
+            let total_amount:number = 0;
+
+            
+            CATEGORIES.forEach(category => {
+                total_amount += expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0;
+                console.log("total_amount:",total_amount);
+                finalExpenses.push({
+                    category: category,
+                    amount: expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0,
+                });
+            });
+            // create an object conatining total amount and the array ->final expenses
+            
+            let total = {
+                total_amount: total_amount,
+                expenses: finalExpenses
+            }
+            
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Category expense fetched successfully", total);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
 
 }

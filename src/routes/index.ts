@@ -2,6 +2,7 @@ import express from'express';
 import { CommonRoutesConfig } from './common.routes.config';
 import { AuthRoutes } from './auth.route';
 import { ExpensesRoutes } from './expenses.route';
+import { AdminRoutes } from './admin.route';
 
 // route basePath and version
 const apiVersion = "v1";
@@ -18,7 +19,7 @@ class RouterConfig{
         const routes: Array<CommonRoutesConfig> = [
             new AuthRoutes(this.app, baseRouterPath,apiVersion),
             new ExpensesRoutes(this.app,baseRouterPath,apiVersion),
-            new ExpensesRoutes(this.app,baseRouterPath,apiVersion),
+            new AdminRoutes(this.app,baseRouterPath,apiVersion),
         ];
         return routes;
     }

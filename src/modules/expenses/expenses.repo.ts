@@ -229,4 +229,29 @@ export class ExpenseRepo implements IExpenseRepo {
             throw eErrorMessage.ServerError;
         }
     }
+
+    async setBudget(
+        userId: number,
+        budget: number
+    ): Promise<boolean> {
+        try {
+            const table_name='users';
+            const query=`
+                update ${table_name} set budget = ?
+                where id = ?`
+            const variables=[budget, userId]
+            const [rows,rowsAffected]= await dbConn.query(query,{
+                replacements: variables,
+                type: QueryTypes.UPDATE
+            });
+            if(rowsAffected > 0){
+                return true;
+            }
+            return false;
+        } 
+        catch (error) {
+            console.log(error);
+            throw eErrorMessage.ServerError;
+        }
+    }
 }

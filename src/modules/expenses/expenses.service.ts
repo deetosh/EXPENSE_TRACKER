@@ -329,5 +329,31 @@ export class ExpenseService implements IExpenseService {
         }
     }
 
+    async setBudget(  
+        userId: number,
+        budget: number
+    ): Promise <serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to set budget",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validNumber("Budget", budget);
+
+            const result = await this.expenseRepo.setBudget(userId,budget);
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Budget set successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
 
 }

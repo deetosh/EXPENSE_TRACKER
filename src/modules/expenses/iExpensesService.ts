@@ -32,4 +32,9 @@ export interface IExpenseService {
         userId: number,
         duration: string,
     ) => Promise <serviceResponse> ;
+
+    setBudget: (
+        userId: number,
+        budget: number,
+    ) => Promise <serviceResponse> ;
 }

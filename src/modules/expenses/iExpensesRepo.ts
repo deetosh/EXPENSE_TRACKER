@@ -9,4 +9,5 @@ export interface IExpenseRepo {
     getDailyExpenses:(userId: number,from_date: string,to_Date:string) => Promise<any[]>;
     getCategoryExpenses:(userId: number,from_date:string, to_Date:string) => Promise<any[]>;
     getBudget:(userId: number) => Promise<any>;
+    setBudget:(userId: number,budget: number) => Promise<boolean>;
 }

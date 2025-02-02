@@ -309,8 +309,12 @@ export class ExpenseService implements IExpenseService {
             });
             // create an object conatining total amount and the array ->final expenses
             
+            const total_budget = await this.expenseRepo.getBudget(userId);
+            console.log("total_budget:",total_budget);
+
             let total = {
                 total_amount: total_amount,
+                total_budget: total_budget.budget,
                 expenses: finalExpenses
             }
             

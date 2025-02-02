@@ -11,7 +11,7 @@ export class ExpensesRoutes extends CommonRoutesConfig {
     configureRoutes() {
         this.app
             .route(`/${this.basePath}/${this.version}/expenses`)
-            .get([
+            .post([
                 authMiddleware.verifyToken,
                 ExpenseController.getExpenses
             ]);   

@@ -192,13 +192,13 @@ export class ExpenseService implements IExpenseService {
             const sevenDaysEarlier = new Date(today);
             const lastMonth = new Date(today);
 
-            if(today.getDate()>6){
+            // if(today.getDate()>6){
                 sevenDaysEarlier.setDate(today.getDate() - 6);
-            }
-            else{
-                sevenDaysEarlier.setMonth(today.getMonth());
-                sevenDaysEarlier.setDate(1);
-            }
+            // }
+            // else{
+            //     sevenDaysEarlier.setMonth(today.getMonth());
+            //     sevenDaysEarlier.setDate(1);
+            // }
             lastMonth.setMonth(today.getMonth());
             lastMonth.setDate(1);
             
@@ -209,7 +209,7 @@ export class ExpenseService implements IExpenseService {
             const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
             const lastMonth_date = lastMonth.toISOString().split('T')[0];
             let result, currentDate;
-            if(type === "daily") {
+            if(type === "weekly") {
                 result = await this.expenseRepo.getDailyExpenses(userId,sevenDaysEarlier_date,today_date);
                 currentDate = new Date(sevenDaysEarlier);
             }
@@ -267,13 +267,13 @@ export class ExpenseService implements IExpenseService {
             const lastMonth = new Date(today.getTime());
             const month= today.getMonth();
 
-            if(today.getDate()>6){
+            // if(today.getDate()>6){
                 sevenDaysEarlier.setDate(today.getDate() - 6);
-            }
-            else{
-                sevenDaysEarlier.setMonth(today.getMonth());
-                sevenDaysEarlier.setDate(1);
-            }
+            // }
+            // else{
+            //     sevenDaysEarlier.setMonth(today.getMonth());
+            //     sevenDaysEarlier.setDate(1);
+            // }
             lastMonth.setMonth(today.getMonth());
             lastMonth.setDate(1);
             

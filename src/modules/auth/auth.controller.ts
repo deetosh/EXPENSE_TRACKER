@@ -209,6 +209,7 @@ class AuthController {
 					response.message,
 					response.cookie_data,
 					response?.data,
+					'http://localhost:5173/app',
 				)
 			}
 			else if(response){
@@ -222,12 +223,13 @@ class AuthController {
 			}
 		} catch (error) {
 			console.log(error);
-			responseHandler(
-				res,
-				eStatusCode.INTERNAL_SERVER_ERROR,
-				true,
-				error ? `${error}` : eErrorMessage.ServerError
-			);
+			res.redirect('http://localhost:5173/login');
+			// responseHandler(
+			// 	res,
+			// 	eStatusCode.INTERNAL_SERVER_ERROR,
+			// 	true,
+			// 	error ? `${error}` : eErrorMessage.ServerError
+			// );
 		}
 	}
 

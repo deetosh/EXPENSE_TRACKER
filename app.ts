@@ -20,10 +20,8 @@ app.use(session({
 
 app.use(cors({
   origin: [
-    'http://localhost:5173',
-    'https://accounts.google.com'
-  ],
-  credentials: true
+    '*',
+  ]
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

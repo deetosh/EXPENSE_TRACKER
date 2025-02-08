@@ -9,6 +9,7 @@ import { eErrorMessage } from "../../interfaces/error_message.enum";
 import { iValidationService } from "../../services/iValidationService";
 
 const CATEGORIES = ['education','food','healthcare','investment','personal','transport','utility','other'];
+const PAYMENT_METHOD = ['cash','credit/debit cards','UPI','cheque','digital wallets','NET banking','EMI'];
 export class ExpenseService implements IExpenseService {
     private readonly validatorService: iValidationService;
     private readonly expenseRepo: IExpenseRepo;
@@ -346,6 +347,77 @@ export class ExpenseService implements IExpenseService {
             const result = await this.expenseRepo.setBudget(userId,budget);
             if (result) {
                 response = setResponse(response, eStatusCode.OK, false, "Budget set successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
+    async getMethodExpenses(
+        userId: number,
+        duration: string
+    ): Promise<serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to fetch payment method expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validStringData("Type", duration);
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const today = new Date(now.getTime() + istOffset);
+
+            console.log("today:",today);
+
+            const sevenDaysEarlier = new Date(today.getTime());
+            const lastMonth = new Date(today.getTime());
+            const month= today.getMonth();
+
+            // if(today.getDate()>6){
+                sevenDaysEarlier.setDate(today.getDate() - 6);
+            // }
+            // else{
+            //     sevenDaysEarlier.setMonth(today.getMonth());
+            //     sevenDaysEarlier.setDate(1);
+            // }
+            lastMonth.setMonth(today.getMonth());
+            lastMonth.setDate(1);
+            
+            console.log("sevenDaysEarlier:",sevenDaysEarlier);
+            console.log("lastMonth:",lastMonth);
+
+            const today_date = today.toISOString().split('T')[0];
+            const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
+            const lastMonth_date = lastMonth.toISOString().split('T')[0];
+
+            let result;
+            if(duration === "weekly") {
+                result = await this.expenseRepo.getMethodExpenses(userId,sevenDaysEarlier_date,today_date);
+                // currentDate = new Date(sevenDaysEarlier);
+            }
+            else{
+                result = await this.expenseRepo.getMethodExpenses(userId,lastMonth_date,today_date);
+                // currentDate = new Date(lastMonth);
+            }
+            const expenseMap = new Map(result.map((entry: { payment_method: string; amount: number }) => [entry.payment_method, entry.amount]));
+
+            const finalExpenses: { payment_method: string; amount: number }[] = [];
+           
+            PAYMENT_METHOD.forEach(payment_method => {
+                finalExpenses.push({
+                    payment_method: payment_method,
+                    amount: expenseMap.get(payment_method)!== undefined ? Number(expenseMap.get(payment_method)) : 0,
+                });
+            });
+
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Payment Method expense fetched successfully", finalExpenses);
             }
             return response;
         } catch (error) {

@@ -37,4 +37,9 @@ export interface IExpenseService {
         userId: number,
         budget: number,
     ) => Promise <serviceResponse> ;
+
+    getMethodExpenses: (
+        userId: number,
+        duration: string,
+    ) => Promise <serviceResponse> ;
 }

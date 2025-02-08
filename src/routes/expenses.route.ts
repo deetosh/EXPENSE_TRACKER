@@ -60,6 +60,13 @@ export class ExpensesRoutes extends CommonRoutesConfig {
                 ExpenseController.setBudget
             ]);
 
+        this.app
+            .route(`/${this.basePath}/${this.version}/expenses/payment_method`)
+            .get([
+                authMiddleware.verifyToken,
+                ExpenseController.getMethodExpenses
+            ]);
+
         return this.app;
     }
 }

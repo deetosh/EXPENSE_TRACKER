@@ -1,14 +1,8 @@
-import dotenv from "dotenv";
-
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
-
 import { Sequelize } from "sequelize";
 import config from "../../config/config";
+import { ENV_NODE_ENV } from "../../secret";
 
-const env_config = process.env.NODE_ENV == 'development'? config.development : config.production;
+const env_config = `${ENV_NODE_ENV}` == 'development'? config.development : config.production;
 
 class EXTR_DB {
     private sequelizeConnection: Sequelize;

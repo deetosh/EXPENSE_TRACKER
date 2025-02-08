@@ -1,21 +1,12 @@
-import dotenv from "dotenv";
-import crypto from 'crypto';
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
 import { IJwtService, signedTokenObj } from "../interfaces/jwt.types";
 import User from "../db/models/user.model";
+import { ENV_ACCESS_TOKEN_EXPIRY, ENV_ACCESS_TOKEN_SECRET, ENV_REFRESH_TOKEN_EXPIRY, ENV_REFRESH_TOKEN_SECRET } from '../../secret';
 
-
-// const JWT_SECRET = `${process.env.JWT_AUTH_KEY}`
-// const expiryTime = `${process.env.JWT_EXP_DURATION}`
-
-const accessToken = `${process.env.ACCESS_TOKEN_SECRET}`
-const refreshToken = `${process.env.REFRESH_TOKEN_SECRET}`
-const accessTokenTime = `${process.env.ACCESS_TOKEN_EXPIRY}`
-const refreshTokenTime = `${process.env.REFRESH_TOKEN_EXPIRY}`
+const accessToken = ENV_ACCESS_TOKEN_SECRET
+const refreshToken = ENV_REFRESH_TOKEN_SECRET
+const accessTokenTime = ENV_ACCESS_TOKEN_EXPIRY
+const refreshTokenTime = ENV_REFRESH_TOKEN_EXPIRY
 
 class JWTService implements IJwtService{
     private access_token_secret: string;

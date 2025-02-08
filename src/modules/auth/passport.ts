@@ -1,15 +1,11 @@
-import dotenv from "dotenv";
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
-
 import passport from 'passport';
 import passportGoogle from 'passport-google-oauth20';
 import authController from "./auth.controller";
 import User from "../../db/models/user.model";
-const GOOGLE_CLIENT_ID = `${process.env.GOOGLE_CLIENT_ID}`;
-const GOOGLE_CLIENT_SECRET = `${process.env.GOOGLE_CLIENT_SECRET}`;
+import { ENV_GOOGLE_CLIENT_ID, ENV_GOOGLE_CLIENT_SECRET } from '../../../secret';
+
+const GOOGLE_CLIENT_ID = ENV_GOOGLE_CLIENT_ID
+const GOOGLE_CLIENT_SECRET = ENV_GOOGLE_CLIENT_SECRET
 
 passport.use(
     new passportGoogle.Strategy(

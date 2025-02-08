@@ -1,4 +1,5 @@
 import { Dialect } from 'sequelize';
+import { ENV_DB_HOST, ENV_DB_NAME, ENV_DB_PASSWORD, ENV_DB_PORT, ENV_DB_USER } from '../secret';
 
 interface DBConfig {
   username: string ;
@@ -23,11 +24,11 @@ interface Config {
 
 const config: Config = {
   development: {
-    username: `${process.env.DB_USER}`,
-    password: `${process.env.DB_PASSWORD}`,
-    database: `${process.env.DB_NAME}`,
-    host: `${process.env.DB_HOST}`,
-    port: Number(process.env.DB_PORT),
+    username: `${ENV_DB_USER}`,
+    password: `${ENV_DB_PASSWORD}`,
+    database: `${ENV_DB_NAME}`,
+    host: `${ENV_DB_HOST}`,
+    port: Number(ENV_DB_PORT),
     dialect: "postgres",
     dialectOptions: {
       ssl: {
@@ -37,11 +38,11 @@ const config: Config = {
     },
   },
   production: {
-    username: `${process.env.DB_USER}`,
-    password: `${process.env.DB_PASSWORD}`,
-    database: `${process.env.DB_NAME}`,
-    host: `${process.env.DB_HOST}`,
-    port: Number(process.env.DB_PORT),
+    username: `${ENV_DB_USER}`,
+    password: `${ENV_DB_PASSWORD}`,
+    database: `${ENV_DB_NAME}`,
+    host: `${ENV_DB_HOST}`,
+    port: Number(ENV_DB_PORT),
     dialect: "postgres",
     dialectOptions: {
       ssl: {

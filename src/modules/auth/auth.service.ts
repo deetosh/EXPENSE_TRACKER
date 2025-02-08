@@ -1,9 +1,3 @@
-import dotenv from "dotenv";
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
-
 import express from 'express';
 import { IAuthService } from './iAuthService';
 import { serviceResponse } from '../../interfaces/response.types';
@@ -17,11 +11,12 @@ import { iValidationService } from "../../services/iValidationService";
 import { IJwtService } from "../../interfaces/jwt.types";
 import passport from "passport";
 import passportGoogle from 'passport-google-oauth20';
+import { ENV_ACCESS_TOKEN_EXPIRY, ENV_ACCESS_TOKEN_SECRET, ENV_REFRESH_TOKEN_EXPIRY, ENV_REFRESH_TOKEN_SECRET } from '../../../secret';
 
-const access_token_secret = `${process.env.ACCESS_TOKEN_SECRET}`
-const refresh_token_secret = `${process.env.REFRESH_TOKEN_SECRET}`
-const access_token_expiry = `${process.env.ACCESS_TOKEN_EXPIRY}`
-const refresh_token_expiry = `${process.env.REFRESH_TOKEN_EXPIRY}`
+const access_token_secret = ENV_ACCESS_TOKEN_SECRET
+const refresh_token_secret = ENV_REFRESH_TOKEN_SECRET
+const access_token_expiry = ENV_ACCESS_TOKEN_EXPIRY
+const refresh_token_expiry = ENV_REFRESH_TOKEN_EXPIRY
 
 export class AuthService implements IAuthService {
     private readonly authRepo: iAuthRepo;
@@ -44,11 +39,16 @@ export class AuthService implements IAuthService {
         }
         try {
             // validations
-            this.validatorService.validName("First name", user.first_name);
-            this.validatorService.validName("Last name", user.last_name);
-            this.validatorService.validEmail("Email",user.email_id);
-            this.validatorService.validPassword("Password",user.password);
-            this.validatorService.validRole("Role",user.role_name);
+            try {
+                this.validatorService.validName("First name", user.first_name);
+                this.validatorService.validName("Last name", user.last_name);
+                this.validatorService.validEmail("Email",user.email_id);
+                this.validatorService.validPassword("Password",user.password);
+                this.validatorService.validRole("Role",user.role_name);
+            } catch (error:any) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, error);
+                return response;
+            }
 
             // check if the user already exists
             const existingUser = await this.authRepo.getUserByEmail(user.email_id);

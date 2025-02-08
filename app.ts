@@ -1,8 +1,4 @@
-import dotenv from "dotenv";
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
+
 import express from 'express'
 import RouterConfig from "./src/routes";
 import cors from "cors"
@@ -10,9 +6,10 @@ import cookie from "cookie-parser"
 import './src/modules/auth/passport'
 import passport from 'passport'
 import session from 'express-session'
+import { ENV_PORT } from './secret';
 
 const app: express.Application = express();
-const port = process.env.PORT;
+const port = ENV_PORT;
 
 app.use(session({
   secret: 'EXPENSE_TRACKER_AZAD_SESSION',   // You should use a secure, random secret key

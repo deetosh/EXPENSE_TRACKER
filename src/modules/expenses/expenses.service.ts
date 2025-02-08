@@ -29,12 +29,17 @@ export class ExpenseService implements IExpenseService {
         }
         try {
             // validations
-            this.validatorService.validNumber("User ID", expense.user_id);
-            this.validatorService.validNumber("Amount", expense.amount);
-            this.validatorService.validStringData("Description", expense.description);
-            this.validatorService.validCategory("Category", expense.category);
-            this.validatorService.validPaymentMode("Payment Mode", expense.payment_mode);
-            this.validatorService.validDate("Date", expense.date);
+            try {
+                this.validatorService.validNumber("User ID", expense.user_id);
+                this.validatorService.validNumber("Amount", expense.amount);
+                this.validatorService.validStringData("Description", expense.description);
+                this.validatorService.validCategory("Category", expense.category);
+                this.validatorService.validPaymentMode("Payment Mode", expense.payment_mode);
+                this.validatorService.validDate("Date", expense.date);
+            } catch (error:any) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, error);
+                return response;
+            }
 
             const result = await this.expenseRepo.addExpense(expense);
             if (result) {

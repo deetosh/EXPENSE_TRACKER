@@ -104,7 +104,7 @@ export class ValidationService implements iValidationService {
     validDate(name: string, data: any): boolean {
         if(data == null || data == "" || data == undefined) throw `${name} is not a valid date`
         const date = new Date(data);
-        if(isNaN(date.getTime())){
+        if(isNaN(date.getDate())){
             throw `${name} is not a valid date. Please enter a valid date`;
         }
         return true;

@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
-const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
-if (dotenvResult.error) {
-  throw dotenvResult.error;
-}
+// const dotenvResult = dotenv.config({ path: `.env.${process.env.ENVIRONMENT}` });
+// if (dotenvResult.error) {
+//   throw dotenvResult.error;
+// }
 
 export const ENV_PORT = process.env.PORT;
 export const ENV_NODE_ENV = process.env.NODE_ENV;

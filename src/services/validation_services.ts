@@ -87,7 +87,7 @@ export class ValidationService implements iValidationService {
     }
     validCategory(name: string, data: any): boolean {
         if (data == null || data == "" || data == undefined) throw `${name} is not a valid category`
-        const categories=['utility','insurance','bank_fees','rent','taxes','repair','gifts','shopping','interest','travel','food','health','others'];
+        const categories=['education','food','healthcare','investment','personal','transport','utility','other'];
         if(!categories.includes(data)){
             throw `${name} is not a valid category. Please enter a valid category`;
         }

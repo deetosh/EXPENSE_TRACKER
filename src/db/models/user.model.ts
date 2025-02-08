@@ -22,7 +22,7 @@ interface UserAttributes {
   tell Sequelize and TypeScript that the property id,
   in this case, is optional to be passed at creation time
 */
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'verified' | 'refresh_token'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'verified' | 'refresh_token' | 'password'> {}
 
 // Extend Sequelize's Model class with the User attributes and creation attributes
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
@@ -83,10 +83,10 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         },
         password: {
           type: DataTypes.STRING,
-          allowNull: false,
           validate: {
             len: [6, 100], // Password should be at least 6 characters
           },
+          defaultValue: null,
           field: 'password',
         },
         createdAt:{

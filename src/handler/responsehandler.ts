@@ -10,7 +10,7 @@ export const responseHandler = (res: Response, status: number, isError: boolean,
     return res.status(status).send(responseObject);
 }
 
-export const responseCookieHandler = (res: Response, status: number, isError: boolean, msg: string, cookie_data:any, data?: any)=>{
+export const responseCookieHandler = (res: Response, status: number, isError: boolean, msg: string, cookie_data:any, data?: any,redirect?:string)=>{
     let responseObject : string | object ={
         "error": isError,
         "message": msg,
@@ -23,7 +23,10 @@ export const responseCookieHandler = (res: Response, status: number, isError: bo
     cookie_data.forEach((cookie:any) => {
         res.cookie(cookie.name, cookie.value, cookie_options);
     });
-    return res.status(status).send(responseObject);
+    if(redirect){
+        res.redirect(redirect);
+    }
+    else return res.status(status).send(responseObject); 
 }
 
 export const responseClearCookieHandler = (res: Response, status: number, isError: boolean, msg: string, cookie_data:any, data?: any)=>{

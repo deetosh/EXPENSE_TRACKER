@@ -5,8 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "start": "cross-env ENVIRONMENT=local  node dist/app.js",
-    "build": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx tsc"
   },
   "author": "deetosh",
   "license": "ISC",

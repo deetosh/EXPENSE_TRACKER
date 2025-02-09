@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - Trackify
+name: Build and deploy Node.js app to Azure Web App - TRACKIFY
 
 on:
   push:
@@ -60,15 +60,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EEF7E8CA30F840069DC2C247FF97E16C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C54EE6759F5F47BCA825AD410C4BF97C }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BBAA6ECC79BA4CBDA9D232132E903ADD }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4C434D6949B640348D3A91B6081BF80A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_18F523AD71C44C11A0FD6274C2D7C941 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EDFEF0D475074400BBDEE757BC04A4BB }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Trackify'
+          app-name: 'TRACKIFY'
           slot-name: 'Production'
           package: .
           

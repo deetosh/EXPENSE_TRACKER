@@ -4,7 +4,7 @@
   "description": "backend for an expense tracker application",
   "main": "app.ts",
   "scripts": {
-    "start": "cross-env ENVIRONMENT=local  node dist/app.js",
+    "start": "node dist/app.js",
     "build": "npx tsc"
   },
   "author": "deetosh",

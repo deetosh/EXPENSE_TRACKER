@@ -24,7 +24,8 @@ app.use(cors({
   origin: [
     `${ENV_FE_BASE_URL}`,
     `${ENV_GOOGLE_OAUTH_URL}`,
-    `${ENV_PRODUCTION_URL}`
+    `${ENV_PRODUCTION_URL}`,
+    'http://20.244.93.32/',
   ],
   credentials: true
 }));

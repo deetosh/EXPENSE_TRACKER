@@ -19,3 +19,8 @@ export const ENV_DB_USER = process.env.DB_USER;
 export const ENV_DB_HOST = process.env.DB_HOST;
 export const ENV_DB_PASSWORD = process.env.DB_PASSWORD;
 export const ENV_DB_PORT = process.env.DB_PORT;
+
+export const ENV_FE_BASE_URL = process.env.FE_BASE_URL;
+export const ENV_FE_REDIRECT_URL = process.env.FE_REDIRECT_URl;
+export const ENV_GOOGLE_OAUTH_URL = process.env.GOOGLE_OAUTH_URL;
+export const ENV_SESSION_SECRET = process.env.SESSION_SECRET;

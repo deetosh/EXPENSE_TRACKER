@@ -9,6 +9,7 @@ import { ValidationService } from '../../services/validation_services';
 import JWTService from '../../services/jwt_services';
 import passport from 'passport';
 import passportGoogle from 'passport-google-oauth20';
+import { ENV_FE_BASE_URL, ENV_FE_REDIRECT_URL } from '../../../secret';
 
 class AuthController {
 	private readonly authService: IAuthService;
@@ -209,7 +210,7 @@ class AuthController {
 					response.message,
 					response.cookie_data,
 					response?.data,
-					'http://localhost:5173/app',
+					`${ENV_FE_REDIRECT_URL}`,
 				)
 			}
 			else if(response){
@@ -223,7 +224,7 @@ class AuthController {
 			}
 		} catch (error) {
 			console.log(error);
-			res.redirect('http://localhost:5173/login');
+			res.redirect(`${ENV_FE_BASE_URL}/login`);
 			// responseHandler(
 			// 	res,
 			// 	eStatusCode.INTERNAL_SERVER_ERROR,

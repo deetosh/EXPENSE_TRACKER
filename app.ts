@@ -6,13 +6,13 @@ import cookie from "cookie-parser"
 import './src/modules/auth/passport'
 import passport from 'passport'
 import session from 'express-session'
-import { ENV_PORT } from './secret';
+import { ENV_FE_BASE_URL, ENV_GOOGLE_OAUTH_URL, ENV_PORT, ENV_SESSION_SECRET } from './secret';
 
 const app: express.Application = express();
 const port = ENV_PORT;
 
 app.use(session({
-  secret: 'EXPENSE_TRACKER_AZAD_SESSION',   // You should use a secure, random secret key
+  secret: `${ENV_SESSION_SECRET}`,   // You should use a secure, random secret key
   resave: false,               // Don't save session if not modified
   saveUninitialized: false,    // Don't create session until something is stored
   cookie: { secure: false }    // Set to true if using HTTPS
@@ -20,8 +20,8 @@ app.use(session({
 
 app.use(cors({
   origin: [
-    'http://localhost:5173',
-    'https://accounts.google.com'
+    `${ENV_FE_BASE_URL}`,
+    `${ENV_GOOGLE_OAUTH_URL}`
   ],
   credentials: true
 }));

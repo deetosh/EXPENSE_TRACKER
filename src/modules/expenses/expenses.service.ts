@@ -9,6 +9,7 @@ import { eErrorMessage } from "../../interfaces/error_message.enum";
 import { iValidationService } from "../../services/iValidationService";
 
 const CATEGORIES = ['education','food','healthcare','investment','personal','transport','utility','other'];
+const PAYMENT_METHOD = ['cash','credit/debit cards','UPI','cheque','digital wallets','NET banking','EMI'];
 export class ExpenseService implements IExpenseService {
     private readonly validatorService: iValidationService;
     private readonly expenseRepo: IExpenseRepo;
@@ -29,12 +30,17 @@ export class ExpenseService implements IExpenseService {
         }
         try {
             // validations
-            this.validatorService.validNumber("User ID", expense.user_id);
-            this.validatorService.validNumber("Amount", expense.amount);
-            this.validatorService.validStringData("Description", expense.description);
-            this.validatorService.validCategory("Category", expense.category);
-            this.validatorService.validPaymentMode("Payment Mode", expense.payment_mode);
-            this.validatorService.validDate("Date", expense.date);
+            try {
+                this.validatorService.validNumber("User ID", expense.user_id);
+                this.validatorService.validNumber("Amount", expense.amount);
+                this.validatorService.validStringData("Description", expense.description);
+                this.validatorService.validCategory("Category", expense.category);
+                this.validatorService.validPaymentMode("Payment Mode", expense.payment_mode);
+                this.validatorService.validDate("Date", expense.date);
+            } catch (error:any) {
+                response = setResponse(response, eStatusCode.BAD_REQUEST, true, error);
+                return response;
+            }
 
             const result = await this.expenseRepo.addExpense(expense);
             if (result) {
@@ -291,12 +297,14 @@ export class ExpenseService implements IExpenseService {
             const expenseMap = new Map(result.map((entry: { category: string; amount: number }) => [entry.category, entry.amount]));
 
             const finalExpenses: { category: string; amount: number }[] = [];
-            let total_amount:number = 0;
+
+            const result2 = await this.expenseRepo.getMonthlyExpense(userId,lastMonth_date,today_date);
+            let total_amount:number = Number(result2.amount);
 
             
             CATEGORIES.forEach(category => {
-                total_amount += expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0;
-                console.log("total_amount:",total_amount);
+                // total_amount += expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0;
+                // console.log("total_amount:",total_amount);
                 finalExpenses.push({
                     category: category,
                     amount: expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0,
@@ -341,6 +349,77 @@ export class ExpenseService implements IExpenseService {
             const result = await this.expenseRepo.setBudget(userId,budget);
             if (result) {
                 response = setResponse(response, eStatusCode.OK, false, "Budget set successfully", result);
+            }
+            return response;
+        } catch (error) {
+            console.log(error);
+            response = setResponse(response, eStatusCode.INTERNAL_SERVER_ERROR, true , eErrorMessage.ServerError);
+            return response;
+        }
+    }
+
+    async getMethodExpenses(
+        userId: number,
+        duration: string
+    ): Promise<serviceResponse> {
+        let response: serviceResponse = {
+            statusCode: eStatusCode.BAD_REQUEST,
+            isError: true,
+            message: "failed to fetch payment method expense",
+        }
+        try {
+            // validations
+            this.validatorService.validNumber("User ID", userId);
+            this.validatorService.validStringData("Type", duration);
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const today = new Date(now.getTime() + istOffset);
+
+            console.log("today:",today);
+
+            const sevenDaysEarlier = new Date(today.getTime());
+            const lastMonth = new Date(today.getTime());
+            const month= today.getMonth();
+
+            // if(today.getDate()>6){
+                sevenDaysEarlier.setDate(today.getDate() - 6);
+            // }
+            // else{
+            //     sevenDaysEarlier.setMonth(today.getMonth());
+            //     sevenDaysEarlier.setDate(1);
+            // }
+            lastMonth.setMonth(today.getMonth());
+            lastMonth.setDate(1);
+            
+            console.log("sevenDaysEarlier:",sevenDaysEarlier);
+            console.log("lastMonth:",lastMonth);
+
+            const today_date = today.toISOString().split('T')[0];
+            const sevenDaysEarlier_date = sevenDaysEarlier.toISOString().split('T')[0];
+            const lastMonth_date = lastMonth.toISOString().split('T')[0];
+
+            let result;
+            if(duration === "weekly") {
+                result = await this.expenseRepo.getMethodExpenses(userId,sevenDaysEarlier_date,today_date);
+                // currentDate = new Date(sevenDaysEarlier);
+            }
+            else{
+                result = await this.expenseRepo.getMethodExpenses(userId,lastMonth_date,today_date);
+                // currentDate = new Date(lastMonth);
+            }
+            const expenseMap = new Map(result.map((entry: { payment_method: string; amount: number }) => [entry.payment_method, entry.amount]));
+
+            const finalExpenses: { payment_method: string; amount: number }[] = [];
+           
+            PAYMENT_METHOD.forEach(payment_method => {
+                finalExpenses.push({
+                    payment_method: payment_method,
+                    amount: expenseMap.get(payment_method)!== undefined ? Number(expenseMap.get(payment_method)) : 0,
+                });
+            });
+
+            if (result) {
+                response = setResponse(response, eStatusCode.OK, false, "Payment Method expense fetched successfully", finalExpenses);
             }
             return response;
         } catch (error) {

@@ -64,7 +64,7 @@ export class ExpenseRepo implements IExpenseRepo {
                 variables.push(filterData.payment_mode);
             }
 
-
+            query += ` order by _date desc`;
             query += ` limit 20 OFFSET ?`;
             variables.push(offset);
             const rows= await dbConn.query(query,{
@@ -273,6 +273,31 @@ export class ExpenseRepo implements IExpenseRepo {
                 type: QueryTypes.SELECT
             });
             return rows;
+        } 
+        catch (error) {
+            console.log(error);
+            throw eErrorMessage.ServerError;
+        }
+    }
+
+    async getMonthlyExpense(
+        userId: number,
+        from_date: string,
+        to_Date: string
+    ): Promise<any> {
+        try {
+            const table_name='expenses';
+            const query=`
+                select 
+                sum(amount) as amount from ${table_name} 
+                where user_id = ? and _date between ? and ?
+                `
+            const variables=[userId, from_date, to_Date]
+            const rows= await dbConn.query(query,{
+                replacements: variables,
+                type: QueryTypes.SELECT
+            });
+            return rows[0];
         } 
         catch (error) {
             console.log(error);

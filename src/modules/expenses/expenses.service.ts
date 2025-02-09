@@ -297,12 +297,14 @@ export class ExpenseService implements IExpenseService {
             const expenseMap = new Map(result.map((entry: { category: string; amount: number }) => [entry.category, entry.amount]));
 
             const finalExpenses: { category: string; amount: number }[] = [];
-            let total_amount:number = 0;
+
+            const result2 = await this.expenseRepo.getMonthlyExpense(userId,lastMonth_date,today_date);
+            let total_amount:number = Number(result2.amount);
 
             
             CATEGORIES.forEach(category => {
-                total_amount += expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0;
-                console.log("total_amount:",total_amount);
+                // total_amount += expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0;
+                // console.log("total_amount:",total_amount);
                 finalExpenses.push({
                     category: category,
                     amount: expenseMap.get(category)!== undefined ? Number(expenseMap.get(category)) : 0,

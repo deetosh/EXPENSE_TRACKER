@@ -11,4 +11,5 @@ export interface IExpenseRepo {
     getBudget:(userId: number) => Promise<any>;
     setBudget:(userId: number,budget: number) => Promise<boolean>;
     getMethodExpenses:(userId: number,from_date:string, to_Date:string) => Promise<any[]>;
+    getMonthlyExpense:(userId: number,from_date:string, to_Date:string) => Promise<any>;
 }

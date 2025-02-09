@@ -24,3 +24,4 @@ export const ENV_FE_BASE_URL = process.env.FE_BASE_URL;
 export const ENV_FE_REDIRECT_URL = process.env.FE_REDIRECT_URl;
 export const ENV_GOOGLE_OAUTH_URL = process.env.GOOGLE_OAUTH_URL;
 export const ENV_SESSION_SECRET = process.env.SESSION_SECRET;
+export const ENV_PRODUCTION_URL = process.env.PRODUCTION_URL;

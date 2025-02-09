@@ -6,7 +6,7 @@ import cookie from "cookie-parser"
 import './src/modules/auth/passport'
 import passport from 'passport'
 import session from 'express-session'
-import { ENV_FE_BASE_URL, ENV_GOOGLE_OAUTH_URL, ENV_PORT, ENV_SESSION_SECRET } from './secret';
+import { ENV_FE_BASE_URL, ENV_GOOGLE_OAUTH_URL, ENV_PORT, ENV_PRODUCTION_URL, ENV_SESSION_SECRET } from './secret';
 
 const app: express.Application = express();
 const port = ENV_PORT;
@@ -21,7 +21,8 @@ app.use(session({
 app.use(cors({
   origin: [
     `${ENV_FE_BASE_URL}`,
-    `${ENV_GOOGLE_OAUTH_URL}`
+    `${ENV_GOOGLE_OAUTH_URL}`,
+    `${ENV_PRODUCTION_URL}`
   ],
   credentials: true
 }));

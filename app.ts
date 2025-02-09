@@ -11,6 +11,8 @@ import { ENV_FE_BASE_URL, ENV_GOOGLE_OAUTH_URL, ENV_PORT, ENV_PRODUCTION_URL, EN
 const app: express.Application = express();
 const port = ENV_PORT;
 
+console.log(ENV_FE_BASE_URL);
+
 app.use(session({
   secret: `${ENV_SESSION_SECRET}`,   // You should use a secure, random secret key
   resave: false,               // Don't save session if not modified
